@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema(
     {
+        _id : String,
         name:{
             type : String,
             required : true
@@ -14,6 +15,8 @@ const Schema = mongoose.Schema(
             type : String,
             required : true
         },
+        specialty : String,
+        description : String,
     }
 )
 

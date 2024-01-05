@@ -1,9 +1,21 @@
-import doctorModel from './models/doctor.js';
+import { v4 } from 'uuid';
+import { doctorModel } from '/Users/Apple/Desktop/backend_tcx/models/doctor.js';
 import bcrypt from 'bcrypt';
+import Joi from 'joi';
+import jwt from 'jsonwebtoken';
 
-   let inscription = async (req, res) => {
-    try {
-        const { name: username, password: password, email: emailAddress } = req.body;
+let inscription = async (req, res) => {
+    const validator = Joi.object({
+        name: Joi.string().required(),
+        password: Joi.string().required(),
+        email: Joi.string().email().required()
+    });
+
+    const validationResult = validator.validate(req.body); // Fix: Use req.body for validation
+    if (!validationResult.error) {
+        const { name: username, password, email: emailAddress } = req.body;
+        const salt = await bcrypt.genSalt(parseInt(process.env.ROUNDS || 10));
+        const hash = await bcrypt.hash(password, salt);
 
         // Check if a user with the provided email already exists
         const existingUser = await doctorModel.findOne({ email: emailAddress });
@@ -11,21 +23,33 @@ import bcrypt from 'bcrypt';
             return res.status(400).json({ message: 'Doctor with this email already exists' });
         }
 
-        // Hash the password before storing it (use a library like bcrypt)
-        const hashedPassword = await hashPassword(password);
-
-        const user = await doctorModel.create({
-            name: username,
-            password: hashedPassword,
-            email: emailAddress
+        try {
+            // Hash the password before storing it (use a library like bcrypt)
+            const doctorId = v4().toString();
+            const user = await doctorModel.create({
+                _id: doctorId,
+                name: username,
+                password: hash,
+                email: emailAddress,
+            });
+            res.json({
+                status: 'success',
+                message: 'Doctor created'
+            });
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({
+                status: 'error',
+                message: "Couldn't create the doctor"
+            });
+        }
+    } else {
+        res.status(400).json({
+            status: 'error',
+            message: 'Validation error'
         });
-
-        res.status(201).json({ message: 'User created successfully', user });
-    } catch (error) {
-        res.status(500).json({ message: 'Error creating user', error });
     }
-}
-
+};
 
 async function hashPassword(password) {
     const saltRounds = 10;
@@ -33,26 +57,55 @@ async function hashPassword(password) {
     return hashedPassword;
 }
 
- const connexion = async (req, res) => {
-    try {
-        const { email: email, password: password } = req.body;
+let j = async (req, res) => {
+    const validator = Joi.object({
+        email: Joi.string().email().required(),
+        password: Joi.string().required(),
+    });
 
-        // Check if a user with the provided email exists
-        const dct = await doctorModel.findOne({ email });
-        if (!dct) {
-            return res.status(400).json({ message: 'Doctor with this email does not exist' });
-        }
-        
-        // Compare the password using bcrypt
-        const isPasswordValid = await bcrypt.compare(password, dct.password);
-        if (!isPasswordValid) {
-            return res.status(400).json({ message: 'Invalid password' });
-        }
+    const validationResult = validator.validate(req.body);
 
-        res.send("Login success");
-    } catch (error) {
-        res.status(500).json({ message: 'Error logging in', error });
+    if (!validationResult.error) {
+        const { email, password } = req.body;
+
+        try {
+            // Check if a user with the provided email exists
+            const dct = await doctorModel.findOne({ email: email });
+            if (!dct) {
+                return res.status(404).json({
+                    status: 'error',
+                    message: `No doctor with email: ${email} was found`,
+                });
+            }
+
+            // Compare the password using bcrypt
+            const isPasswordValid = await bcrypt.compare(password, dct.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({
+                    status: 'error',
+                    message: 'Password is incorrect',
+                });
+            }
+
+            const token = jwt.sign({ id: dct._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+
+            return res.json({
+                status: 'success',
+                token,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({
+                status: 'error',
+                message: 'Internal Server Error',
+            });
+        }
+    } else {
+        res.status(401).json({
+            status: 'error',
+            message: 'Validation error',
+        });
     }
-}
-export {inscription, connexion};
+};
 
+export { inscription, j };
