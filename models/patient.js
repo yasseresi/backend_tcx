@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const MedicalHistorySchema = new mongoose.Schema({
     date: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     description: String,
 });
@@ -11,7 +11,7 @@ const MedicalHistorySchema = new mongoose.Schema({
 const DiagnosisSchema = new mongoose.Schema({
     date: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     description: String,
 });
@@ -19,33 +19,33 @@ const DiagnosisSchema = new mongoose.Schema({
 const PrescriptionSchema = new mongoose.Schema({
     date: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     medication: {
-        type: String,
-        required: true,
-        unique: true
+        type:String,
+        default: ""
     },
-    dosage: {
-        type: String,
-        required: true,
+    dosage:  {
+        type:String,
+        default: ""
     },
-    frequency: {
-        type: String,
-        required: true,
-    },
+    frequency:  {
+        type:String,
+        default: ""
+    }
 });
 
 const TestResultSchema = new mongoose.Schema({
     date: {
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     test: String,
     result: String,
 });
 
 const PatientSchema = new mongoose.Schema({
+    // _id : String,
     name: { type: String, required: true },
     age: { type: Number, required: true },
     gender: { type: String, required: true },
@@ -55,10 +55,11 @@ const PatientSchema = new mongoose.Schema({
     diagnoses: [DiagnosisSchema],
     prescriptions: [PrescriptionSchema],
     test_results: [TestResultSchema],
+},{
+    timestamps: true
 });
 
 
-const MedicalHistory = mongoose.model("MedicalHistory", MedicalHistorySchema);
 export const Patient = mongoose.model("Patient", PatientSchema, "patients");
 
 

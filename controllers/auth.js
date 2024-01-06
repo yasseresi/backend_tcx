@@ -1,4 +1,3 @@
-import { v4 } from 'uuid';
 import { doctorModel } from '/Users/Apple/Desktop/backend_tcx/models/doctor.js';
 import bcrypt from 'bcrypt';
 import Joi from 'joi';
@@ -25,9 +24,7 @@ let inscription = async (req, res) => {
 
         try {
             // Hash the password before storing it (use a library like bcrypt)
-            const doctorId = v4().toString();
             const user = await doctorModel.create({
-                _id: doctorId,
                 name: username,
                 password: hash,
                 email: emailAddress,
