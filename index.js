@@ -82,21 +82,21 @@ app.get('/home', async (req, res) => {
     });
 });
 
-app.post('/upload', upload.single('image'), (req, res) => {
-    const pythonScriptPath = 'path_to_your_python_script.py';
+// app.post('/upload', upload.single('image'), (req, res) => {
+//     const pythonScriptPath = 'path_to_your_python_script.py';
 
-    execFile('python', [pythonScriptPath, req.file.path], (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Error executing Python script: ${error}`);
-            res.status(500).send('An error occurred');
-            return;
-        }
+//     execFile('python', [pythonScriptPath, req.file.path], (error, stdout, stderr) => {
+//         if (error) {
+//             console.error(`Error executing Python script: ${error}`);
+//             res.status(500).send('An error occurred');
+//             return;
+//         }
 
-        // The output from the Python script will be the segmented image
-        // You can send this back to the client, perhaps as a base64 encoded string
-        res.send(stdout.toString());
-    });
-});
+//         // The output from the Python script will be the segmented image
+//         // You can send this back to the client, perhaps as a base64 encoded string
+//         res.send(stdout.toString());
+//     });
+// });
 
 
 mongoose.connect('mongodb://localhost/DB_TCX')
