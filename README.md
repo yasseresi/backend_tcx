@@ -51,3 +51,9 @@ Follow these steps to set up and run the backend of the Medical Application:
 
    ```bash
    git clone https://github.com/your-username/backend_tcx.git
+
+---
+
+## 👤 Author
+
+**Yasser Korzane** — Flutter & Go developer · [GitHub](https://github.com/yasseresi) · [LinkedIn](https://www.linkedin.com/in/korzane-yasser)
